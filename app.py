@@ -6,37 +6,39 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 
 # ---------------------------------------------------------
-# FORCE STREAMLIT INTO LIGHT MODE (important!)
-# ---------------------------------------------------------
-st.markdown("""
-    <style>
-        :root {
-            color-scheme: light !important;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-# ---------------------------------------------------------
 # PAGE CONFIG
 # ---------------------------------------------------------
 st.set_page_config(page_title="EcoScan", page_icon="🌿", layout="centered")
 
 # ---------------------------------------------------------
-# SOLID SKY-BLUE THEME CSS
+# FORCE GREEN BACKGROUND (REAL FIX)
 # ---------------------------------------------------------
-SKY_BLUE_SOLID = """
+st.markdown("""
+    <style>
+        /* Force Streamlit into LIGHT mode */
+        :root {
+            color-scheme: light !important;
+        }
+
+        /* Main app background */
+        .stApp {
+            background-color: #8fffa0 !important;  /* vibrant eco green */
+            background-image: none !important;
+        }
+
+        /* Remove white central container */
+        .st-emotion-cache-18ni7ap, .st-emotion-cache-1jicfl2, .st-emotion-cache-7oyrr6, .st-emotion-cache-1jtrq3p {
+            background-color: #8fffa0 !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# ---------------------------------------------------------
+# WHITE CARD STYLING
+# ---------------------------------------------------------
+GREEN_CARDS = """
 <style>
 
-    /* Entire page background (solid sky blue) */
-    body {
-        background-color: #b3e5ff !important;
-    }
-
-    .main {
-        background-color: #b3e5ff !important;
-    }
-
-    /* Title */
     .eco-title {
         font-size: 40px;
         font-weight: 700;
@@ -52,7 +54,6 @@ SKY_BLUE_SOLID = """
         margin-bottom: 25px;
     }
 
-    /* White card for input box */
     .eco-card {
         background: #ffffff;
         border-radius: 16px;
@@ -62,7 +63,6 @@ SKY_BLUE_SOLID = """
         margin-bottom: 25px;
     }
 
-    /* Button */
     .stButton>button {
         background-color: #0fbf8a;
         color: white;
@@ -80,7 +80,6 @@ SKY_BLUE_SOLID = """
         box-shadow: 0px 4px 18px rgba(0,150,120,0.5);
     }
 
-    /* Result box */
     .result-box {
         background: #eafff3;
         border-left: 8px solid #0fbf8a;
@@ -97,7 +96,7 @@ SKY_BLUE_SOLID = """
 </style>
 """
 
-st.markdown(SKY_BLUE_SOLID, unsafe_allow_html=True)
+st.markdown(GREEN_CARDS, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # MODEL + PREPROCESSORS
@@ -152,11 +151,11 @@ with st.form("input_form"):
 
     # Categorical fields
     for i, c in enumerate(CAT_COLS):
-        opts = sorted(train_df[c].dropna().unique().tolist())
+        options = sorted(train_df[c].dropna().unique().tolist())
         if i % 2 == 0:
-            inputs[c] = col1.selectbox(f"🍃 {c}", opts)
+            inputs[c] = col1.selectbox(f"🍃 {c}", options)
         else:
-            inputs[c] = col2.selectbox(f"🌿 {c}", opts)
+            inputs[c] = col2.selectbox(f"🌿 {c}", options)
 
     # Numeric fields
     for i, n in enumerate(NUM_COLS):
@@ -189,3 +188,4 @@ if submit:
     except Exception as e:
         st.error("❌ Something went wrong.")
         st.exception(e)
+
