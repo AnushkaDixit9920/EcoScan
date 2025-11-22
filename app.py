@@ -2,72 +2,78 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.compose import ColumnTransformer
 
-model = joblib.load("artifacts/model.pkl")
+st.set_page_config(page_title="EcoScan", page_icon="🌍")
 
+MODEL_PATH = "artifacts/model.pkl"
+TRAINING_CSV_PATH = "data/Cleaned_Carbon_Emission.csv"
 
-st.title("🌍 EcoScan - Carbon Footprint Estimator")
-st.write("Enter your lifestyle details to estimate your carbon footprint.")
+@st.cache_resource(show_spinner=False)
+def load_model():
+    return joblib.load(MODEL_PATH)
 
-def user_inputs():
-    body_type = st.selectbox("Body Type", ["Underweight", "Normal", "Overweight", "Obese"])
-    sex = st.selectbox("Sex", ["Male", "Female"])
-    diet = st.selectbox("Diet", ["Vegan", "Vegetarian", "Pescatarian", "Omnivore"])
-    shower_freq = st.number_input("How often do you shower per week?", 0, 50, 7)
-    heating = st.selectbox("Heating Energy Source", ["Coal", "Wood", "Natural Gas", "Electricity"])
-    transport = st.selectbox("Transport Mode", ["Public", "Private", "Walk/Bicycle"])
-    vehicle_type = st.selectbox("Vehicle Type", ["None", "Diesel", "Petrol", "Electric", "Hybrid"])
-    distance = st.number_input("Vehicle Monthly Distance (km)", 0, 10000, 100)
-    grocery = st.number_input("Monthly Grocery Bill (₹)", 0, 50000, 2000)
-    air_travel = st.number_input("Flights per year", 0, 50, 0)
-    waste_size = st.selectbox("Waste Bag Size", ["Small", "Medium", "Large"])
-    waste_count = st.number_input("Weekly Waste Bags", 0, 50, 2)
-    screen_time = st.number_input("Daily Screen Time (hours)", 0, 24, 4)
-    clothes = st.number_input("Clothes Bought Per Month", 0, 50, 2)
-    internet = st.number_input("Daily Internet Usage (hours)", 0, 24, 5)
-    energy_eff = st.selectbox("Energy Efficient Home?", ["Yes", "No", "Sometimes"])
+@st.cache_data(show_spinner=False)
+def load_training_data():
+    df = pd.read_csv(TRAINING_CSV_PATH)
+    return df
 
-    paper = st.selectbox("Recycle Paper?", ["Yes", "No"])
-    plastic = st.selectbox("Recycle Plastic?", ["Yes", "No"])
-    metal = st.selectbox("Recycle Metal?", ["Yes", "No"])
-    glass = st.selectbox("Recycle Glass?", ["Yes", "No"])
+@st.cache_resource(show_spinner=False)
+def build_preprocessor(df):
+    X = df.drop(columns=["CarbonEmission"], errors="ignore")
+    num_cols = X.select_dtypes(exclude="object").columns.tolist()
+    cat_cols = X.select_dtypes(include="object").columns.tolist()
 
-    cooking = st.selectbox("Cooking Method", ["Gas", "Electric", "Induction", "Wood"])
+    preprocessor = ColumnTransformer(
+        [
+            ("ohe", OneHotEncoder(handle_unknown="ignore", sparse=False), cat_cols),
+            ("scaler", StandardScaler(), num_cols),
+        ],
+        remainder="drop",
+        sparse_threshold=0
+    )
 
-    data = pd.DataFrame({
-        'BodyType':[body_type],
-        'Sex':[sex],
-        'Diet':[diet],
-        'HowOftenShower':[shower_freq],
-        'HeatingEnergySource':[heating],
-        'Transport':[transport],
-        'VehicleType':[vehicle_type],
-        'VehicleMonthlyDistance':[distance],
-        'MonthlyGroceryBill':[grocery],
-        'AirTravel':[air_travel],
-        'WasteBagSize':[waste_size],
-        'WasteBagWeeklyCount':[waste_count],
-        'DailyTVPCuse':[screen_time],
-        'MonthlyClothesBought':[clothes],
-        'DailyInternetUsage':[internet],
-        'EnergyEfficiency':[energy_eff],
-        'RecyclePaper':[paper],
-        'RecyclePlastic':[plastic],
-        'RecycleMetal':[metal],
-        'RecycleGlass':[glass],
-        'Cooking':[cooking]
-    })
-    return data
+    preprocessor.fit(X)
+    return preprocessor, cat_cols, num_cols
 
-input_df = user_inputs()
+model = load_model()
+train_df = load_training_data()
+preprocessor, CAT_COLS, NUM_COLS = build_preprocessor(train_df)
 
-if st.button("Estimate Carbon Footprint"):
+st.title("🌍 EcoScan — Carbon Footprint Estimator")
+
+with st.form("input_form"):
+    st.subheader("Enter your lifestyle details")
+
+    inputs = {}
+
+    for c in CAT_COLS:
+        opts = sorted(train_df[c].dropna().unique().tolist())
+        inputs[c] = st.selectbox(c, opts)
+
+    for n in NUM_COLS:
+        default = float(train_df[n].median())
+        inputs[n] = st.number_input(n, value=default)
+
+    submit = st.form_submit_button("Estimate Carbon Footprint")
+
+if submit:
     try:
-        result = model.predict(input_df)[0]
-        st.success(f"Your estimated carbon footprint: **{result:.2f} kg CO₂/month**")
+        input_df = pd.DataFrame([inputs])
+        input_df[NUM_COLS] = input_df[NUM_COLS].apply(pd.to_numeric)
+
+        X_transformed = preprocessor.transform(input_df)
+
+        pred = model.predict(X_transformed)[0]
+
+        st.success(f"Your estimated carbon footprint: **{pred:.2f} kg CO₂/month**")
+
     except Exception as e:
-        st.error("Error predicting. Check input format.")
-        st.write(e)
+        st.error("Error predicting.")
+        st.exception(e)
+
+
 
 
 
