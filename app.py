@@ -15,18 +15,15 @@ st.set_page_config(page_title="EcoScan", page_icon="🌿", layout="centered")
 # ---------------------------------------------------------
 st.markdown("""
     <style>
-        /* Force Streamlit into LIGHT mode */
         :root {
             color-scheme: light !important;
         }
 
-        /* Main app background — soft mint green */
         .stApp {
             background-color: #c8f7cc !important;
             background-image: none !important;
         }
 
-        /* Make all Streamlit wrapper containers mint as well */
         .st-emotion-cache-18ni7ap,
         .st-emotion-cache-1jicfl2,
         .st-emotion-cache-7oyrr6,
@@ -37,7 +34,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# CARD + HEADING STYLES
+# STYLING (TITLE + CARDS)
 # ---------------------------------------------------------
 MINT_CSS = """
 <style>
@@ -45,7 +42,7 @@ MINT_CSS = """
     .eco-title {
         font-size: 40px;
         font-weight: 700;
-        color: #2f5c3b;  /* dark muted green */
+        color: #2f5c3b;
         text-align: center;
         margin-top: 10px;
     }
@@ -141,7 +138,7 @@ st.markdown("<div class='eco-title'>🌿 EcoScan — Carbon Footprint Estimator<
 st.markdown("<div class='eco-sub'>Make sustainable decisions with data-driven insights</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# INPUT FORM
+# FORM
 # ---------------------------------------------------------
 st.markdown("<div class='eco-card'>", unsafe_allow_html=True)
 
@@ -151,7 +148,6 @@ with st.form("input_form"):
     col1, col2 = st.columns(2)
     inputs = {}
 
-    # Categorical fields
     for i, c in enumerate(CAT_COLS):
         options = sorted(train_df[c].dropna().unique().tolist())
         if i % 2 == 0:
@@ -159,7 +155,6 @@ with st.form("input_form"):
         else:
             inputs[c] = col2.selectbox(f"🌿 {c}", options)
 
-    # Numeric fields
     for i, n in enumerate(NUM_COLS):
         default_val = float(train_df[n].median())
         if i % 2 == 0:
@@ -172,7 +167,7 @@ with st.form("input_form"):
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# PREDICTION RESULT
+# PREDICTION + SUGGESTIONS
 # ---------------------------------------------------------
 if submit:
     try:
@@ -187,8 +182,63 @@ if submit:
             unsafe_allow_html=True
         )
 
+        st.write("")
+
+        # ---------------------- SUGGESTIONS BASED ON RANGE ----------------------
+        if pred < 1000:
+            st.markdown("""
+            ### 🌿 Low Emissions — Great Job!
+            - Maintain sustainable transport habits  
+            - Keep electricity consumption low  
+            - Continue recycling regularly  
+            - Practice mindful consumption  
+            - Inspire others to adopt eco-friendly habits  
+            """)
+
+        elif 1000 <= pred < 2000:
+            st.markdown("""
+            ### 🌱 Suggestions for Improvement
+            - Use public transport or carpool more often  
+            - Shorten shower duration  
+            - Switch to LED bulbs  
+            - Start recycling plastic and metal  
+            - Add plant-based meals to your diet  
+            """)
+
+        elif 2000 <= pred < 3000:
+            st.markdown("""
+            ### 🌼 Moderate Emissions — Needs Attention
+            - Reduce private vehicle usage  
+            - Use energy-efficient appliances  
+            - Reduce AC/refrigerator usage  
+            - Avoid single-use plastics  
+            - Reduce frequency of flights  
+            - Buy fewer new clothes (reduce fast fashion impact)  
+            """)
+
+        elif 3000 <= pred < 4000:
+            st.markdown("""
+            ### 🌻 High Emissions — Consider These Steps
+            - Shift to renewable energy (solar/green power)  
+            - Reduce diesel/petrol usage  
+            - Reduce packaged food & meat-heavy diet  
+            - Conduct home energy audit  
+            - Compost to reduce waste  
+            - Reduce excessive screen time  
+            """)
+
+        else:
+            st.markdown("""
+            ### 🔥 Very High Emissions — Immediate Action Needed
+            - Switch to electric/hybrid transport  
+            - Install solar panels / switch from coal heating  
+            - Avoid unnecessary flights  
+            - Reduce fast fashion shopping  
+            - Improve home insulation  
+            - Cut down AC/heating use  
+            """)
+
     except Exception as e:
         st.error("❌ Something went wrong.")
         st.exception(e)
-
 
