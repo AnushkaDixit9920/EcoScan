@@ -10,36 +10,39 @@ st.set_page_config(page_title="EcoScan", page_icon="🌍")
 MODEL_PATH = "artifacts/model.pkl"
 TRAINING_CSV_PATH = "data/Cleaned_Carbon_Emission.csv"
 
-@st.cache_resource(show_spinner=False)
+
+@st.cache_resource
 def load_model():
     return joblib.load(MODEL_PATH)
 
-@st.cache_data(show_spinner=False)
+
 def load_training_data():
     df = pd.read_csv(TRAINING_CSV_PATH)
     return df
 
-@st.cache_resource(show_spinner=False)
+
 def build_preprocessor(df):
     X = df.drop(columns=["CarbonEmission"], errors="ignore")
+
     num_cols = X.select_dtypes(exclude="object").columns.tolist()
     cat_cols = X.select_dtypes(include="object").columns.tolist()
 
     preprocessor = ColumnTransformer(
         [
-            ("ohe", OneHotEncoder(handle_unknown="ignore", sparse=False), cat_cols),
+            ("ohe", OneHotEncoder(handle_unknown="ignore", sparse_output=False), cat_cols),
             ("scaler", StandardScaler(), num_cols),
         ],
-        remainder="drop",
-        sparse_threshold=0
+        remainder="drop"
     )
 
     preprocessor.fit(X)
+
     return preprocessor, cat_cols, num_cols
 
 model = load_model()
 train_df = load_training_data()
 preprocessor, CAT_COLS, NUM_COLS = build_preprocessor(train_df)
+
 
 st.title("🌍 EcoScan — Carbon Footprint Estimator")
 
@@ -64,14 +67,15 @@ if submit:
         input_df[NUM_COLS] = input_df[NUM_COLS].apply(pd.to_numeric)
 
         X_transformed = preprocessor.transform(input_df)
-
         pred = model.predict(X_transformed)[0]
 
-        st.success(f"Your estimated carbon footprint: **{pred:.2f} kg CO₂/month**")
+        st.success(f"Your estimated carbon footprint: **{pred:.2f} kg CO₂ / month**")
 
     except Exception as e:
-        st.error("Error predicting.")
+        st.error("Error during prediction.")
         st.exception(e)
+
+
 
 
 
