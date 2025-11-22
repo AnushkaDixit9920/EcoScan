@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 import joblib
 
-model = joblib.load('model.pkl')
+model = joblib.load("artifacts/model.pkl")
+
 
 st.title("🌍 EcoScan - Carbon Footprint Estimator")
 st.write("Enter your lifestyle details to estimate your carbon footprint.")
@@ -67,5 +68,6 @@ if st.button("Estimate Carbon Footprint"):
     except Exception as e:
         st.error("Error predicting. Check input format.")
         st.write(e)
+
 
 
