@@ -11,18 +11,18 @@ from sklearn.compose import ColumnTransformer
 st.set_page_config(page_title="EcoScan", page_icon="🌿", layout="centered")
 
 # ---------------------------------------------------------
-# SKY BLUE ECO CUSTOM CSS
+# SOLID SKY-BLUE THEME CSS
 # ---------------------------------------------------------
-SKY_BLUE_THEME = """
+SKY_BLUE_SOLID = """
 <style>
 
-    /* Background gradient */
+    /* Entire page background (solid sky blue) */
     body {
-        background: linear-gradient(to bottom right, #dff6ff, #bfe9ff, #e8faff);
+        background-color: #b3e5ff !important;
     }
 
     .main {
-        background: transparent !important;
+        background-color: #b3e5ff !important;
     }
 
     /* Title */
@@ -32,19 +32,18 @@ SKY_BLUE_THEME = """
         color: #054c77;
         text-align: center;
         margin-top: 10px;
-        margin-bottom: 5px;
     }
 
     .eco-sub {
         font-size: 18px;
         text-align: center;
-        color: #0a6ea8;
+        color: #065a93;
         margin-bottom: 25px;
     }
 
-    /* Card container */
+    /* White card for input box */
     .eco-card {
-        background: #ffffffdd;
+        background: #ffffff;
         border-radius: 16px;
         padding: 22px 26px;
         box-shadow: 0px 6px 18px rgba(0,0,0,0.1);
@@ -52,7 +51,7 @@ SKY_BLUE_THEME = """
         margin-bottom: 25px;
     }
 
-    /* Buttons */
+    /* Button */
     .stButton>button {
         background-color: #0fbf8a;
         color: white;
@@ -60,9 +59,9 @@ SKY_BLUE_THEME = """
         padding: 10px 18px;
         font-size: 16px;
         border: none;
+        width: 100%;
         box-shadow: 0px 3px 14px rgba(0,150,120,0.3);
         transition: 0.2s ease-in-out;
-        width: 100%;
     }
 
     .stButton>button:hover {
@@ -70,7 +69,7 @@ SKY_BLUE_THEME = """
         box-shadow: 0px 4px 18px rgba(0,150,120,0.5);
     }
 
-    /* Prediction result box */
+    /* Result box */
     .result-box {
         background: #eafff3;
         border-left: 8px solid #0fbf8a;
@@ -87,7 +86,7 @@ SKY_BLUE_THEME = """
 </style>
 """
 
-st.markdown(SKY_BLUE_THEME, unsafe_allow_html=True)
+st.markdown(SKY_BLUE_SOLID, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # MODEL + PREPROCESSORS
@@ -127,7 +126,7 @@ preprocessor, CAT_COLS, NUM_COLS = build_preprocessor(train_df)
 # HEADER
 # ---------------------------------------------------------
 st.markdown("<div class='eco-title'>🌿 EcoScan — Carbon Footprint Estimator</div>", unsafe_allow_html=True)
-st.markdown("<div class='eco-sub'>Make sustainable decisions with data-backed insights</div>", unsafe_allow_html=True)
+st.markdown("<div class='eco-sub'>Make sustainable decisions with data-driven insights</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # INPUT FORM
@@ -140,7 +139,7 @@ with st.form("input_form"):
     col1, col2 = st.columns(2)
     inputs = {}
 
-    # Categorical fields (alternating across columns)
+    # Categorical fields
     for i, c in enumerate(CAT_COLS):
         opts = sorted(train_df[c].dropna().unique().tolist())
         if i % 2 == 0:
@@ -148,7 +147,7 @@ with st.form("input_form"):
         else:
             inputs[c] = col2.selectbox(f"🌿 {c}", opts)
 
-    # Numeric fields (alternating)
+    # Numeric fields
     for i, n in enumerate(NUM_COLS):
         default_val = float(train_df[n].median())
         if i % 2 == 0:
@@ -179,9 +178,6 @@ if submit:
     except Exception as e:
         st.error("❌ Something went wrong.")
         st.exception(e)
-
-
-
 
 
 
