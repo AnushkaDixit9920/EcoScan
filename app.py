@@ -11,22 +11,25 @@ from sklearn.compose import ColumnTransformer
 st.set_page_config(page_title="EcoScan", page_icon="🌿", layout="centered")
 
 # ---------------------------------------------------------
-# ECO GREEN CUSTOM CSS
+# SKY BLUE ECO CUSTOM CSS
 # ---------------------------------------------------------
-GREEN_UI = """
+SKY_BLUE_THEME = """
 <style>
+
+    /* Background gradient */
     body {
-        background-color: #0e1411;
+        background: linear-gradient(to bottom right, #dff6ff, #bfe9ff, #e8faff);
     }
 
     .main {
-        background-color: #0e1411 !important;
+        background: transparent !important;
     }
 
+    /* Title */
     .eco-title {
         font-size: 40px;
-        font-weight: 800;
-        color: #B8FFCC;
+        font-weight: 700;
+        color: #054c77;
         text-align: center;
         margin-top: 10px;
         margin-bottom: 5px;
@@ -35,52 +38,56 @@ GREEN_UI = """
     .eco-sub {
         font-size: 18px;
         text-align: center;
-        color: #8ee6a6;
+        color: #0a6ea8;
         margin-bottom: 25px;
     }
 
+    /* Card container */
     .eco-card {
-        background: #1a281f;
+        background: #ffffffdd;
         border-radius: 16px;
         padding: 22px 26px;
-        box-shadow: 0px 4px 14px rgba(0,255,120,0.15);
-        border: 1px solid rgba(0,255,120,0.15);
+        box-shadow: 0px 6px 18px rgba(0,0,0,0.1);
+        border: 1px solid rgba(0,150,200,0.15);
         margin-bottom: 25px;
     }
 
+    /* Buttons */
     .stButton>button {
-        background-color: #0fdd74;
+        background-color: #0fbf8a;
         color: white;
         border-radius: 10px;
         padding: 10px 18px;
         font-size: 16px;
         border: none;
-        box-shadow: 0px 2px 10px rgba(0,255,120,0.3);
+        box-shadow: 0px 3px 14px rgba(0,150,120,0.3);
         transition: 0.2s ease-in-out;
         width: 100%;
     }
 
     .stButton>button:hover {
-        background-color: #10f784;
-        box-shadow: 0px 4px 14px rgba(0,255,120,0.5);
+        background-color: #16dca3;
+        box-shadow: 0px 4px 18px rgba(0,150,120,0.5);
     }
 
+    /* Prediction result box */
     .result-box {
-        background: #002f1a;
-        border-left: 8px solid #0fdc72;
+        background: #eafff3;
+        border-left: 8px solid #0fbf8a;
         padding: 18px;
         border-radius: 12px;
-        color: #b8ffcc;
+        color: #06684e;
         font-size: 20px;
         text-align: center;
         margin-top: 20px;
         font-weight: 600;
-        box-shadow: 0px 4px 14px rgba(0,255,120,0.15);
+        box-shadow: 0px 4px 18px rgba(0,150,120,0.15);
     }
+
 </style>
 """
 
-st.markdown(GREEN_UI, unsafe_allow_html=True)
+st.markdown(SKY_BLUE_THEME, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # MODEL + PREPROCESSORS
@@ -120,20 +127,20 @@ preprocessor, CAT_COLS, NUM_COLS = build_preprocessor(train_df)
 # HEADER
 # ---------------------------------------------------------
 st.markdown("<div class='eco-title'>🌿 EcoScan — Carbon Footprint Estimator</div>", unsafe_allow_html=True)
-st.markdown("<div class='eco-sub'>Enter your lifestyle details to estimate your monthly carbon footprint</div>", unsafe_allow_html=True)
+st.markdown("<div class='eco-sub'>Make sustainable decisions with data-backed insights</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# INPUT CARD
+# INPUT FORM
 # ---------------------------------------------------------
 st.markdown("<div class='eco-card'>", unsafe_allow_html=True)
 
 with st.form("input_form"):
-    st.subheader("🌱 Lifestyle Information")
+    st.subheader("🌱 Enter your lifestyle details")
 
     col1, col2 = st.columns(2)
     inputs = {}
 
-    # Categorical fields split across two columns
+    # Categorical fields (alternating across columns)
     for i, c in enumerate(CAT_COLS):
         opts = sorted(train_df[c].dropna().unique().tolist())
         if i % 2 == 0:
@@ -141,7 +148,7 @@ with st.form("input_form"):
         else:
             inputs[c] = col2.selectbox(f"🌿 {c}", opts)
 
-    # Numeric fields split in two columns as well
+    # Numeric fields (alternating)
     for i, n in enumerate(NUM_COLS):
         default_val = float(train_df[n].median())
         if i % 2 == 0:
@@ -154,7 +161,7 @@ with st.form("input_form"):
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# PREDICTION HANDLING
+# PREDICTION RESULT
 # ---------------------------------------------------------
 if submit:
     try:
