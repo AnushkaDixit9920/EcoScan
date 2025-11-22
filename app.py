@@ -6,6 +6,17 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 
 # ---------------------------------------------------------
+# FORCE STREAMLIT INTO LIGHT MODE (important!)
+# ---------------------------------------------------------
+st.markdown("""
+    <style>
+        :root {
+            color-scheme: light !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# ---------------------------------------------------------
 # PAGE CONFIG
 # ---------------------------------------------------------
 st.set_page_config(page_title="EcoScan", page_icon="🌿", layout="centered")
@@ -178,9 +189,3 @@ if submit:
     except Exception as e:
         st.error("❌ Something went wrong.")
         st.exception(e)
-
-
-
-
-
-
