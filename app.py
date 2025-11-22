@@ -11,7 +11,7 @@ from sklearn.compose import ColumnTransformer
 st.set_page_config(page_title="EcoScan", page_icon="🌿", layout="centered")
 
 # ---------------------------------------------------------
-# FORCE GREEN BACKGROUND (REAL FIX)
+# FIX STREAMLIT THEME + APPLY MINT GREEN BACKGROUND
 # ---------------------------------------------------------
 st.markdown("""
     <style>
@@ -20,29 +20,32 @@ st.markdown("""
             color-scheme: light !important;
         }
 
-        /* Main app background */
+        /* Main app background — soft mint green */
         .stApp {
-            background-color: #8fffa0 !important;  /* vibrant eco green */
+            background-color: #c8f7cc !important;
             background-image: none !important;
         }
 
-        /* Remove white central container */
-        .st-emotion-cache-18ni7ap, .st-emotion-cache-1jicfl2, .st-emotion-cache-7oyrr6, .st-emotion-cache-1jtrq3p {
-            background-color: #8fffa0 !important;
+        /* Make all Streamlit wrapper containers mint as well */
+        .st-emotion-cache-18ni7ap,
+        .st-emotion-cache-1jicfl2,
+        .st-emotion-cache-7oyrr6,
+        .st-emotion-cache-1jtrq3p {
+            background-color: #c8f7cc !important;
         }
     </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# WHITE CARD STYLING
+# CARD + HEADING STYLES
 # ---------------------------------------------------------
-GREEN_CARDS = """
+MINT_CSS = """
 <style>
 
     .eco-title {
         font-size: 40px;
         font-weight: 700;
-        color: #054c77;
+        color: #2f5c3b;  /* dark muted green */
         text-align: center;
         margin-top: 10px;
     }
@@ -50,7 +53,7 @@ GREEN_CARDS = """
     .eco-sub {
         font-size: 18px;
         text-align: center;
-        color: #065a93;
+        color: #3c6b47;
         margin-bottom: 25px;
     }
 
@@ -58,45 +61,44 @@ GREEN_CARDS = """
         background: #ffffff;
         border-radius: 16px;
         padding: 22px 26px;
-        box-shadow: 0px 6px 18px rgba(0,0,0,0.1);
-        border: 1px solid rgba(0,150,200,0.15);
+        box-shadow: 0px 6px 18px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,100,50,0.15);
         margin-bottom: 25px;
     }
 
     .stButton>button {
-        background-color: #0fbf8a;
+        background-color: #4caf75;
         color: white;
         border-radius: 10px;
         padding: 10px 18px;
         font-size: 16px;
         border: none;
         width: 100%;
-        box-shadow: 0px 3px 14px rgba(0,150,120,0.3);
+        box-shadow: 0px 3px 10px rgba(0,0,0,0.15);
         transition: 0.2s ease-in-out;
     }
 
     .stButton>button:hover {
-        background-color: #16dca3;
-        box-shadow: 0px 4px 18px rgba(0,150,120,0.5);
+        background-color: #5ed08c;
+        box-shadow: 0px 5px 15px rgba(0,0,0,0.25);
     }
 
     .result-box {
-        background: #eafff3;
-        border-left: 8px solid #0fbf8a;
+        background: #e8ffed;
+        border-left: 8px solid #4caf75;
         padding: 18px;
         border-radius: 12px;
-        color: #06684e;
+        color: #2f5c3b;
         font-size: 20px;
         text-align: center;
         margin-top: 20px;
         font-weight: 600;
-        box-shadow: 0px 4px 18px rgba(0,150,120,0.15);
+        box-shadow: 0px 4px 14px rgba(0,0,0,0.1);
     }
 
 </style>
 """
-
-st.markdown(GREEN_CARDS, unsafe_allow_html=True)
+st.markdown(MINT_CSS, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # MODEL + PREPROCESSORS
@@ -188,4 +190,5 @@ if submit:
     except Exception as e:
         st.error("❌ Something went wrong.")
         st.exception(e)
+
 
