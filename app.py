@@ -5,101 +5,90 @@ import joblib
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 
-# ---------------------------------------------------------
-# PAGE CONFIG
-# ---------------------------------------------------------
+
 st.set_page_config(page_title="EcoScan", page_icon="🌿", layout="centered")
 
-# ---------------------------------------------------------
-# FIX STREAMLIT THEME + APPLY MINT GREEN BACKGROUND
-# ---------------------------------------------------------
+
 st.markdown("""
     <style>
         :root {
             color-scheme: light !important;
         }
 
+        /* Full forest green background */
         .stApp {
-            background-color: #c8f7cc !important;
+            background-color: #0B3D2E !important;
             background-image: none !important;
         }
 
+        /* Override container backgrounds */
         .st-emotion-cache-18ni7ap,
         .st-emotion-cache-1jicfl2,
         .st-emotion-cache-7oyrr6,
         .st-emotion-cache-1jtrq3p {
-            background-color: #c8f7cc !important;
+            background-color: #0B3D2E !important;
+        }
+
+        /* Title & subtitle styles */
+        .eco-title {
+            font-size: 40px;
+            font-weight: 700;
+            color: #E8FFF4;  /* soft mint-white text */
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .eco-sub {
+            font-size: 18px;
+            text-align: center;
+            color: #BEEFD6;
+            margin-bottom: 25px;
+        }
+
+        /* White card styling */
+        .eco-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 22px 26px;
+            box-shadow: 0px 6px 18px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 25px;
+        }
+
+        /* Buttons */
+        .stButton>button {
+            background-color: #157F56;  /* forest accent green */
+            color: white;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-size: 16px;
+            border: none;
+            width: 100%;
+            box-shadow: 0px 3px 12px rgba(0,0,0,0.3);
+            transition: 0.2s ease-in-out;
+        }
+
+        .stButton>button:hover {
+            background-color: #1CA56C;
+            box-shadow: 0px 5px 18px rgba(0,0,0,0.4);
+        }
+
+        /* Result box */
+        .result-box {
+            background: #E8FFF0;
+            border-left: 8px solid #1CA56C;
+            padding: 18px;
+            border-radius: 12px;
+            color: #0B3D2E;
+            font-size: 20px;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 600;
+            box-shadow: 0px 4px 14px rgba(0,0,0,0.25);
         }
     </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# STYLING (TITLE + CARDS)
-# ---------------------------------------------------------
-MINT_CSS = """
-<style>
-
-    .eco-title {
-        font-size: 40px;
-        font-weight: 700;
-        color: #2f5c3b;
-        text-align: center;
-        margin-top: 10px;
-    }
-
-    .eco-sub {
-        font-size: 18px;
-        text-align: center;
-        color: #3c6b47;
-        margin-bottom: 25px;
-    }
-
-    .eco-card {
-        background: #ffffff;
-        border-radius: 16px;
-        padding: 22px 26px;
-        box-shadow: 0px 6px 18px rgba(0,0,0,0.08);
-        border: 1px solid rgba(0,100,50,0.15);
-        margin-bottom: 25px;
-    }
-
-    .stButton>button {
-        background-color: #4caf75;
-        color: white;
-        border-radius: 10px;
-        padding: 10px 18px;
-        font-size: 16px;
-        border: none;
-        width: 100%;
-        box-shadow: 0px 3px 10px rgba(0,0,0,0.15);
-        transition: 0.2s ease-in-out;
-    }
-
-    .stButton>button:hover {
-        background-color: #5ed08c;
-        box-shadow: 0px 5px 15px rgba(0,0,0,0.25);
-    }
-
-    .result-box {
-        background: #e8ffed;
-        border-left: 8px solid #4caf75;
-        padding: 18px;
-        border-radius: 12px;
-        color: #2f5c3b;
-        font-size: 20px;
-        text-align: center;
-        margin-top: 20px;
-        font-weight: 600;
-        box-shadow: 0px 4px 14px rgba(0,0,0,0.1);
-    }
-
-</style>
-"""
-st.markdown(MINT_CSS, unsafe_allow_html=True)
-
-# ---------------------------------------------------------
-# MODEL + PREPROCESSORS
-# ---------------------------------------------------------
 MODEL_PATH = "artifacts/model.pkl"
 TRAINING_CSV_PATH = "data/Cleaned_Carbon_Emission.csv"
 
@@ -131,15 +120,11 @@ model = load_model()
 train_df = load_training_data()
 preprocessor, CAT_COLS, NUM_COLS = build_preprocessor(train_df)
 
-# ---------------------------------------------------------
-# HEADER
-# ---------------------------------------------------------
+
 st.markdown("<div class='eco-title'>🌿 EcoScan — Carbon Footprint Estimator</div>", unsafe_allow_html=True)
 st.markdown("<div class='eco-sub'>Make sustainable decisions with data-driven insights</div>", unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# FORM
-# ---------------------------------------------------------
+
 st.markdown("<div class='eco-card'>", unsafe_allow_html=True)
 
 with st.form("input_form"):
@@ -166,9 +151,7 @@ with st.form("input_form"):
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# PREDICTION + SUGGESTIONS
-# ---------------------------------------------------------
+
 if submit:
     try:
         input_df = pd.DataFrame([inputs])
@@ -184,7 +167,6 @@ if submit:
 
         st.write("")
 
-        # ---------------------- SUGGESTIONS BASED ON RANGE ----------------------
         if pred < 1000:
             st.markdown("""
             ### 🌿 Low Emissions — Great Job!
@@ -192,7 +174,6 @@ if submit:
             - Keep electricity consumption low  
             - Continue recycling regularly  
             - Practice mindful consumption  
-            - Inspire others to adopt eco-friendly habits  
             """)
 
         elif 1000 <= pred < 2000:
@@ -213,32 +194,27 @@ if submit:
             - Reduce AC/refrigerator usage  
             - Avoid single-use plastics  
             - Reduce frequency of flights  
-            - Buy fewer new clothes (reduce fast fashion impact)  
             """)
 
         elif 3000 <= pred < 4000:
             st.markdown("""
             ### 🌻 High Emissions — Consider These Steps
-            - Shift to renewable energy (solar/green power)  
+            - Shift to renewable energy sources  
             - Reduce diesel/petrol usage  
             - Reduce packaged food & meat-heavy diet  
-            - Conduct home energy audit  
-            - Compost to reduce waste  
-            - Reduce excessive screen time  
+            - Conduct a home energy audit  
             """)
 
         else:
             st.markdown("""
             ### 🔥 Very High Emissions — Immediate Action Needed
             - Switch to electric/hybrid transport  
-            - Install solar panels / switch from coal heating  
+            - Install solar panels  
             - Avoid unnecessary flights  
-            - Reduce fast fashion shopping  
+            - Reduce fast fashion consumption  
             - Improve home insulation  
-            - Cut down AC/heating use  
             """)
 
     except Exception as e:
         st.error("❌ Something went wrong.")
         st.exception(e)
-
