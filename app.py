@@ -15,13 +15,13 @@ st.markdown("""
             color-scheme: light !important;
         }
 
-        /* Full forest green background */
+        /* Forest green background */
         .stApp {
             background-color: #0B3D2E !important;
             background-image: none !important;
         }
 
-        /* Override container backgrounds */
+        /* Background override for Streamlit containers */
         .st-emotion-cache-18ni7ap,
         .st-emotion-cache-1jicfl2,
         .st-emotion-cache-7oyrr6,
@@ -29,23 +29,35 @@ st.markdown("""
             background-color: #0B3D2E !important;
         }
 
-        /* Title & subtitle styles */
+        /* Main Title */
         .eco-title {
             font-size: 40px;
             font-weight: 700;
-            color: #E8FFF4;  /* soft mint-white text */
+            color: #FFFFFF;  
             text-align: center;
             margin-top: 10px;
         }
 
+        /* Subtitle */
         .eco-sub {
             font-size: 18px;
             text-align: center;
-            color: #BEEFD6;
+            color: #D9FFEE;
             margin-bottom: 25px;
         }
 
-        /* White card styling */
+        /* All section headings */
+        h1, h2, h3, h4, h5, h6, .stMarkdown h3 {
+            color: #FFFFFF !important;
+        }
+
+        /* Form field labels */
+        label, .st-emotion-cache-q8sbsg p {
+            color: #E8FFF4 !important;
+            font-weight: 600 !important;
+        }
+
+        /* Input card */
         .eco-card {
             background: #ffffff;
             border-radius: 16px;
@@ -57,7 +69,7 @@ st.markdown("""
 
         /* Buttons */
         .stButton>button {
-            background-color: #157F56;  /* forest accent green */
+            background-color: #157F56;
             color: white;
             border-radius: 10px;
             padding: 10px 18px;
@@ -67,13 +79,12 @@ st.markdown("""
             box-shadow: 0px 3px 12px rgba(0,0,0,0.3);
             transition: 0.2s ease-in-out;
         }
-
         .stButton>button:hover {
             background-color: #1CA56C;
             box-shadow: 0px 5px 18px rgba(0,0,0,0.4);
         }
 
-        /* Result box */
+        /* Result Box */
         .result-box {
             background: #E8FFF0;
             border-left: 8px solid #1CA56C;
@@ -89,6 +100,9 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# ---------------------------------------------------------
+# MODEL + PREPROCESSORS
+# ---------------------------------------------------------
 MODEL_PATH = "artifacts/model.pkl"
 TRAINING_CSV_PATH = "data/Cleaned_Carbon_Emission.csv"
 
@@ -165,56 +179,49 @@ if submit:
             unsafe_allow_html=True
         )
 
-        st.write("")
-
         if pred < 1000:
             st.markdown("""
-            ### 🌿 Low Emissions — Great Job!
+            ### 🌿 Low Emissions — Great job!
             - Maintain sustainable transport habits  
             - Keep electricity consumption low  
             - Continue recycling regularly  
-            - Practice mindful consumption  
             """)
 
         elif 1000 <= pred < 2000:
             st.markdown("""
             ### 🌱 Suggestions for Improvement
-            - Use public transport or carpool more often  
-            - Shorten shower duration  
+            - Use public transport more often  
             - Switch to LED bulbs  
-            - Start recycling plastic and metal  
-            - Add plant-based meals to your diet  
+            - Reduce hot water usage  
+            - Add plant-based meals  
             """)
 
         elif 2000 <= pred < 3000:
             st.markdown("""
             ### 🌼 Moderate Emissions — Needs Attention
-            - Reduce private vehicle usage  
-            - Use energy-efficient appliances  
             - Reduce AC/refrigerator usage  
             - Avoid single-use plastics  
-            - Reduce frequency of flights  
+            - Reduce car usage where possible  
             """)
 
         elif 3000 <= pred < 4000:
             st.markdown("""
             ### 🌻 High Emissions — Consider These Steps
-            - Shift to renewable energy sources  
-            - Reduce diesel/petrol usage  
-            - Reduce packaged food & meat-heavy diet  
-            - Conduct a home energy audit  
+            - Switch to renewable energy  
+            - Reduce diesel/petrol transportation  
+            - Reduce packaged food consumption  
             """)
 
         else:
             st.markdown("""
             ### 🔥 Very High Emissions — Immediate Action Needed
-            - Switch to electric/hybrid transport  
-            - Install solar panels  
+            - Switch to electric vehicles  
             - Avoid unnecessary flights  
-            - Reduce fast fashion consumption  
             - Improve home insulation  
+            - Reduce fast-fashion buying  
             """)
 
     except Exception as e:
         st.error("❌ Something went wrong.")
         st.exception(e)
+
