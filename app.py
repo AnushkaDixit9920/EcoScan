@@ -21,7 +21,7 @@ st.markdown("""
             background-image: none !important;
         }
 
-        /* Background override for Streamlit containers */
+        /* Apply forest background to all elements */
         .st-emotion-cache-18ni7ap,
         .st-emotion-cache-1jicfl2,
         .st-emotion-cache-7oyrr6,
@@ -33,7 +33,7 @@ st.markdown("""
         .eco-title {
             font-size: 40px;
             font-weight: 700;
-            color: #FFFFFF;  
+            color: #FFFFFF;
             text-align: center;
             margin-top: 10px;
         }
@@ -46,18 +46,18 @@ st.markdown("""
             margin-bottom: 25px;
         }
 
-        /* All section headings */
+        /* ALL HEADERS WHITE */
         h1, h2, h3, h4, h5, h6, .stMarkdown h3 {
             color: #FFFFFF !important;
         }
 
-        /* Form field labels */
+        /* Labels WHITE */
         label, .st-emotion-cache-q8sbsg p {
             color: #E8FFF4 !important;
             font-weight: 600 !important;
         }
 
-        /* Input card */
+        /* White card */
         .eco-card {
             background: #ffffff;
             border-radius: 16px;
@@ -84,7 +84,7 @@ st.markdown("""
             box-shadow: 0px 5px 18px rgba(0,0,0,0.4);
         }
 
-        /* Result Box */
+        /* Result box */
         .result-box {
             background: #E8FFF0;
             border-left: 8px solid #1CA56C;
@@ -97,12 +97,25 @@ st.markdown("""
             font-weight: 600;
             box-shadow: 0px 4px 14px rgba(0,0,0,0.25);
         }
+
+        /* Make SUGGESTIONS TEXT white */
+        .stMarkdown p,
+        .stMarkdown ul li,
+        .stMarkdown ol li,
+        .st-emotion-cache-1629p8f p,
+        .st-emotion-cache-1p2d2xw p {
+            color: #FFFFFF !important;
+        }
+
+        /* Make suggestion headings white */
+        .stMarkdown h3, .stMarkdown h4 {
+            color: #FFFFFF !important;
+        }
+
     </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# MODEL + PREPROCESSORS
-# ---------------------------------------------------------
+
 MODEL_PATH = "artifacts/model.pkl"
 TRAINING_CSV_PATH = "data/Cleaned_Carbon_Emission.csv"
 
@@ -139,6 +152,7 @@ st.markdown("<div class='eco-title'>🌿 EcoScan — Carbon Footprint Estimator<
 st.markdown("<div class='eco-sub'>Make sustainable decisions with data-driven insights</div>", unsafe_allow_html=True)
 
 
+
 st.markdown("<div class='eco-card'>", unsafe_allow_html=True)
 
 with st.form("input_form"):
@@ -153,6 +167,7 @@ with st.form("input_form"):
             inputs[c] = col1.selectbox(f"🍃 {c}", options)
         else:
             inputs[c] = col2.selectbox(f"🌿 {c}", options)
+
 
     for i, n in enumerate(NUM_COLS):
         default_val = float(train_df[n].median())
@@ -179,6 +194,7 @@ if submit:
             unsafe_allow_html=True
         )
 
+      
         if pred < 1000:
             st.markdown("""
             ### 🌿 Low Emissions — Great job!
@@ -192,8 +208,8 @@ if submit:
             ### 🌱 Suggestions for Improvement
             - Use public transport more often  
             - Switch to LED bulbs  
-            - Reduce hot water usage  
-            - Add plant-based meals  
+            - Reduce long hot showers  
+            - Add more plant-based meals  
             """)
 
         elif 2000 <= pred < 3000:
@@ -201,21 +217,21 @@ if submit:
             ### 🌼 Moderate Emissions — Needs Attention
             - Reduce AC/refrigerator usage  
             - Avoid single-use plastics  
-            - Reduce car usage where possible  
+            - Reduce private vehicle usage  
             """)
 
         elif 3000 <= pred < 4000:
             st.markdown("""
             ### 🌻 High Emissions — Consider These Steps
-            - Switch to renewable energy  
+            - Shift to renewable energy  
             - Reduce diesel/petrol transportation  
-            - Reduce packaged food consumption  
+            - Reduce packed/processed foods  
             """)
 
         else:
             st.markdown("""
             ### 🔥 Very High Emissions — Immediate Action Needed
-            - Switch to electric vehicles  
+            - Switch to electric/hybrid vehicle  
             - Avoid unnecessary flights  
             - Improve home insulation  
             - Reduce fast-fashion buying  
