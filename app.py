@@ -1,158 +1,105 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import joblib
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.compose import ColumnTransformer
+import google.generativeai as genai
+import os
+
+# ================= 🌿 GEMINI CONFIGURATION =================
+# ⚠️ REPLACE WITH YOUR KEY
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+def generate_suggestions(user_inputs, emission_value):
+    prompt = f"""
+    You are EcoScan AI — a friendly sustainability expert.
+
+    The user has the following lifestyle choices:
+    {user_inputs}
+
+    Their estimated carbon footprint is: {emission_value:.2f} kg CO2 / month.
+
+    ✨ Provide exactly 5 short, practical tips to reduce footprint.
+    📌 Rules:
+    - Max 10–12 words per point.
+    - Relevant to given lifestyle only.
+    - Simple language, no technical words.
+    - Encouraging, not blaming.
+    - Format with bullet points like this:
+      • suggestion 1
+      • suggestion 2
+      • suggestion 3
+    """
+
+    model = genai.GenerativeModel("gemini-2.5-flash")
+    response = model.generate_content(prompt)
+    return response.text
 
 
+# ================= 🌿 STREAMLIT UI DESIGN =================
 st.set_page_config(page_title="EcoScan", page_icon="🌿", layout="centered")
-
 
 st.markdown("""
     <style>
-        :root {
-            color-scheme: light !important;
-        }
-
-        /* Forest green background */
-        .stApp {
-            background-color: #0B3D2E !important;
-            background-image: none !important;
-        }
-
-        /* Apply forest background to all elements */
-        .st-emotion-cache-18ni7ap,
-        .st-emotion-cache-1jicfl2,
-        .st-emotion-cache-7oyrr6,
-        .st-emotion-cache-1jtrq3p {
-            background-color: #0B3D2E !important;
-        }
-
-        /* Main Title */
-        .eco-title {
-            font-size: 40px;
-            font-weight: 700;
-            color: #FFFFFF;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        /* Subtitle */
-        .eco-sub {
-            font-size: 18px;
-            text-align: center;
-            color: #D9FFEE;
-            margin-bottom: 25px;
-        }
-
-        /* ALL HEADERS WHITE */
-        h1, h2, h3, h4, h5, h6, .stMarkdown h3 {
-            color: #FFFFFF !important;
-        }
-
-        /* Labels WHITE */
-        label, .st-emotion-cache-q8sbsg p {
-            color: #E8FFF4 !important;
-            font-weight: 600 !important;
-        }
-
-        /* White card */
-        .eco-card {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 22px 26px;
-            box-shadow: 0px 6px 18px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 25px;
-        }
-
-        /* Buttons */
+        :root { color-scheme: light !important; }
+        .stApp { background-color: #0B3D2E !important; }
+        .eco-title { font-size: 40px; font-weight: 700; color: #FFFFFF; text-align: center; margin-top: 10px; }
+        .eco-sub { font-size: 18px; text-align: center; color: #D9FFEE; margin-bottom: 25px; }
+        h1, h2, h3, h4, h5, h6 { color: #FFFFFF !important; }
+        label, .stMarkdown p { color: #E8FFF4 !important; font-weight: 600 !important; }
+        .eco-card { background: #ffffff; border-radius: 16px; padding: 22px 26px; box-shadow: 0px 6px 18px rgba(0,0,0,0.3); margin-bottom: 25px; }
         .stButton>button {
-            background-color: #157F56;
-            color: white;
-            border-radius: 10px;
-            padding: 10px 18px;
-            font-size: 16px;
-            border: none;
-            width: 100%;
-            box-shadow: 0px 3px 12px rgba(0,0,0,0.3);
-            transition: 0.2s ease-in-out;
+            background-color: #157F56; color: white; border-radius: 10px;
+            padding: 10px 18px; font-size: 16px; border: none; width: 100%;
+            box-shadow: 0px 3px 12px rgba(0,0,0,0.3); transition: 0.2s ease-in-out;
         }
         .stButton>button:hover {
-            background-color: #1CA56C;
-            box-shadow: 0px 5px 18px rgba(0,0,0,0.4);
+            background-color: #1CA56C; box-shadow: 0px 5px 18px rgba(0,0,0,0.4);
         }
-
-        /* Result box */
         .result-box {
-            background: #E8FFF0;
-            border-left: 8px solid #1CA56C;
-            padding: 18px;
-            border-radius: 12px;
-            color: #0B3D2E;
-            font-size: 20px;
-            text-align: center;
-            margin-top: 20px;
-            font-weight: 600;
-            box-shadow: 0px 4px 14px rgba(0,0,0,0.25);
+            background: #E8FFF0; border-left: 8px solid #1CA56C; padding: 18px;
+            border-radius: 12px; color: #0B3D2E; font-size: 20px; text-align: center;
+            margin-top: 20px; font-weight: 600; box-shadow: 0px 4px 14px rgba(0,0,0,0.25);
+        }
+        /* Force ALL markdown text to white, including Gemini suggestions */
+        .stMarkdown, .stMarkdown p, .stMarkdown li, .stMarkdown span {
+            color: #FFFFFF !important;
+            font-weight: 500 !important;
         }
 
-        /* Make SUGGESTIONS TEXT white */
-        .stMarkdown p,
-        .stMarkdown ul li,
-        .stMarkdown ol li,
-        .st-emotion-cache-1629p8f p,
-        .st-emotion-cache-1p2d2xw p {
-            color: #FFFFFF !important;
-        }
-
-        /* Make suggestion headings white */
-        .stMarkdown h3, .stMarkdown h4 {
-            color: #FFFFFF !important;
+        /* Light color bullet dot */
+        .stMarkdown li::marker {
+            color: #D9FFEE !important;
         }
 
     </style>
 """, unsafe_allow_html=True)
 
 
+# ================= 🌿 LOAD MODEL + DATA =================
 MODEL_PATH = "artifacts/model.pkl"
 TRAINING_CSV_PATH = "data/Cleaned_Carbon_Emission.csv"
 
 @st.cache_resource
-def load_model():
-    return joblib.load(MODEL_PATH)
+def load_pipeline_model():
+    return joblib.load(MODEL_PATH)   # contains preprocessor + regressor
 
 def load_training_data():
     return pd.read_csv(TRAINING_CSV_PATH)
 
-def build_preprocessor(df):
-    X = df.drop(columns=["CarbonEmission"], errors="ignore")
-
-    num_cols = X.select_dtypes(exclude="object").columns.tolist()
-    cat_cols = X.select_dtypes(include="object").columns.tolist()
-
-    preprocessor = ColumnTransformer(
-        [
-            ("ohe", OneHotEncoder(handle_unknown="ignore", sparse_output=False), cat_cols),
-            ("scaler", StandardScaler(), num_cols),
-        ],
-        remainder="drop"
-    )
-
-    preprocessor.fit(X)
-    return preprocessor, cat_cols, num_cols
-
-model = load_model()
+model = load_pipeline_model()
 train_df = load_training_data()
-preprocessor, CAT_COLS, NUM_COLS = build_preprocessor(train_df)
+
+# Extract columns for UI only (NOT preprocessing)
+NUM_COLS = train_df.select_dtypes(exclude="object").columns.drop("CarbonEmission", errors="ignore").tolist()
+CAT_COLS = train_df.select_dtypes(include="object").columns.tolist()
 
 
+# ================= 🌿 APP TITLE =================
 st.markdown("<div class='eco-title'>🌿 EcoScan — Carbon Footprint Estimator</div>", unsafe_allow_html=True)
 st.markdown("<div class='eco-sub'>Make sustainable decisions with data-driven insights</div>", unsafe_allow_html=True)
 
 
-
+# ================= 🌿 FORM UI =================
 st.markdown("<div class='eco-card'>", unsafe_allow_html=True)
 
 with st.form("input_form"):
@@ -161,6 +108,7 @@ with st.form("input_form"):
     col1, col2 = st.columns(2)
     inputs = {}
 
+    # Categorical inputs
     for i, c in enumerate(CAT_COLS):
         options = sorted(train_df[c].dropna().unique().tolist())
         if i % 2 == 0:
@@ -168,7 +116,7 @@ with st.form("input_form"):
         else:
             inputs[c] = col2.selectbox(f"🌿 {c}", options)
 
-
+    # Numeric inputs
     for i, n in enumerate(NUM_COLS):
         default_val = float(train_df[n].median())
         if i % 2 == 0:
@@ -181,63 +129,28 @@ with st.form("input_form"):
 st.markdown("</div>", unsafe_allow_html=True)
 
 
+# ================= 🌿 PREDICT + GEMINI =================
 if submit:
     try:
         input_df = pd.DataFrame([inputs])
-        input_df[NUM_COLS] = input_df[NUM_COLS].apply(pd.to_numeric)
 
-        X_transformed = preprocessor.transform(input_df)
-        pred = model.predict(X_transformed)[0]
+        # Convert list inputs if any to strings
+        for col in input_df.columns:
+            if isinstance(input_df[col][0], list):
+                input_df[col] = input_df[col].apply(lambda x: ", ".join(x))
+
+        # Direct prediction (pipeline handles preprocessing)
+        pred = model.predict(input_df)[0]
 
         st.markdown(
             f"<div class='result-box'>🌎 Your estimated carbon footprint:<br><br><b>{pred:.2f} kg CO₂ / month</b></div>",
             unsafe_allow_html=True
         )
 
-      
-        if pred < 1000:
-            st.markdown("""
-            ### 🌿 Low Emissions — Great job!
-            - Maintain sustainable transport habits  
-            - Keep electricity consumption low  
-            - Continue recycling regularly  
-            """)
-
-        elif 1000 <= pred < 2000:
-            st.markdown("""
-            ### 🌱 Suggestions for Improvement
-            - Use public transport more often  
-            - Switch to LED bulbs  
-            - Reduce long hot showers  
-            - Add more plant-based meals  
-            """)
-
-        elif 2000 <= pred < 3000:
-            st.markdown("""
-            ### 🌼 Moderate Emissions — Needs Attention
-            - Reduce AC/refrigerator usage  
-            - Avoid single-use plastics  
-            - Reduce private vehicle usage  
-            """)
-
-        elif 3000 <= pred < 4000:
-            st.markdown("""
-            ### 🌻 High Emissions — Consider These Steps
-            - Shift to renewable energy  
-            - Reduce diesel/petrol transportation  
-            - Reduce packed/processed foods  
-            """)
-
-        else:
-            st.markdown("""
-            ### 🔥 Very High Emissions — Immediate Action Needed
-            - Switch to electric/hybrid vehicle  
-            - Avoid unnecessary flights  
-            - Improve home insulation  
-            - Reduce fast-fashion buying  
-            """)
+        suggestions = generate_suggestions(inputs, pred)
+        st.markdown("### 🌿 Personalized Eco Suggestions")
+        st.markdown(suggestions)
 
     except Exception as e:
         st.error("❌ Something went wrong.")
         st.exception(e)
-
