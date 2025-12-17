@@ -59,6 +59,11 @@ The dataset contains various lifestyle attributes and a target label **CarbonEmi
 
 ---
 
+Gemini Integration
+--
+Personalised suggestions by Gemini
+
+--
 ## 🤖 Model Performance
 
 Multiple models were evaluated.  
