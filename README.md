@@ -85,12 +85,9 @@ Deployment link
 --
 https://ecoscan-eehixcitkjl6bfdaugm2kn.streamlit.app/
 
--
+--
 ## Authors
 - Alisha Kapoor (Model Training) [Github](https://github.com/Alisha090706)
 - Bhawya Kumari (EDA & Feature Engineering) [Github](https://github.com/Bhawya2531)
-- Anushka Dixit (Flask & Streamlit Integration)  [Github] (https://github.com/AnushkaDixit9920)
-  
-
 - Anushka Dixit (Flask Integration) [Github](https://github.com/AnushkaDixit9920)
 
